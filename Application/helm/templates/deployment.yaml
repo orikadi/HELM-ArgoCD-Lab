@@ -33,7 +33,6 @@ spec:
       maxUnavailable: 25%
       maxSurge: 25%
   revisionHistoryLimit: 10
-  ...  #this will Create Volume From our ConfigMap
 spec:
   template:
     spec:
@@ -46,4 +45,3 @@ spec:
           volumeMounts:
           - name: index-html
             mountPath: /tmp/html # this will mount the html.index file to it application location
-...
