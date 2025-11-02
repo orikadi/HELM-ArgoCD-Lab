@@ -1,30 +1,37 @@
 kind: Deployment
 apiVersion: apps/v1
 metadata:
-# set your lab user name
+  # set your lab user name
   name: {{ .Chart.Name }}
 spec:
   replicas: {{ .Values.ReplicaNumber }}
   selector:
     matchLabels:
-# set your lab user name
+      # set your lab user name
       app: {{ .Chart.Name }}
   template:
     metadata:
       labels:
-# set your lab user name
+        # set your lab user name
         app: {{ .Chart.Name }}
     spec:
+      volumes:
+        - name: index-html
+          configMap:
+            name: '{{ .Chart.Name }}-html'
+            defaultMode: 420
       containers:
-        - resources: {}
-          terminationMessagePath: /dev/termination-log
-          name: hello-world
+        - name: hello-world
+          image: {{ .Values.containers.image }}:{{ .Values.containers.tag }}
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: {{ .Values.containers.containerPort }}
               protocol: TCP
-          imagePullPolicy: IfNotPresent
-# update with the image you build in part 1
-          image: {{ .Values.containers.image }}:{{ .Values.containers.tag }}
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          volumeMounts:
+            - name: index-html
+              mountPath: /tmp/html # this will mount the html.index file to it application location
       restartPolicy: Always
       terminationGracePeriodSeconds: 30
   strategy:
@@ -33,15 +40,3 @@ spec:
       maxUnavailable: 25%
       maxSurge: 25%
   revisionHistoryLimit: 10
-spec:
-  template:
-    spec:
-      volumes:
-        - name: index-html
-          configMap:
-            name: '{{ .Chart.Name }}-html'
-            defaultMode: 420
-      containers:
-          volumeMounts:
-          - name: index-html
-            mountPath: /tmp/html # this will mount the html.index file to it application location
